@@ -1,5 +1,5 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, get_object_or_404
 from django.template import loader
 
 from polls.models import Question
@@ -22,4 +22,8 @@ def results(request, question_id):
     return HttpResponse(response)
 
 def details(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
+    try:
+        question = get_object_or_404(Question, pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request=request, template_name="polls/detail.html", context={"question": question})
